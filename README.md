@@ -1,10 +1,12 @@
-# Spark application
+# Spark API
 
 Esta aplicación representa un simple ABM de items. Se utilizó una arquitectura
 MVC implementada con Java y Spark. mientras que para la persistencia de la 
 información se utilizó Elastic Search.
+Una vez levantada la aplicacion con algun servidor web como Tomcat o Jetty, 
+se puede acceder al sitio desde **http://localhost:8080/store**
 
-# Routes
+# API Routes
 
 | Recurso  | Descripción | Método |
 | ------------- | ------------- | ------------- |
