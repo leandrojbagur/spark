@@ -2,6 +2,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/js/bootstrap-notify.min.js"></script>
+    <script type="text/javascript" src="/js/edit.js"></script>
 
     <div class="content">
         <form class="form-inline col-lg-8 col-lg-offset-2" id="itemForm">
@@ -105,61 +107,6 @@
         </div>
     </div>
 </html>
-
-<script>
-    $(document).ready(function() {
-        $("#saveBtn").click(function () {
-            var data = parseFormData($("#itemForm"));
-            $.post("/create", JSON.stringify(data), function(response) {
-                window.location = "/store";
-            });
-
-        });
-
-        $("#editBtn").click(function () {
-            var itemId = $("#itemId").val();
-            var data = parseFormData($("#itemForm"));
-            $.ajax({
-                url: "/update/" + itemId,
-                method: "PUT",
-                data: JSON.stringify(data),
-                success: function() {
-                    window.location = "/store";
-                }
-            });
-        });
-
-        $("#backBtn").click(function () {
-            window.location = "/store";
-        });
-
-        $("#addImage").click(function() {
-            var html = $(".copy-fields").html();
-            debugger;
-            $("#itemForm").append(html);
-        });
-
-        $("body").on("click", ".remove", function() {
-            $(this).parents(".input-group").remove();
-        });
-
-        function parseFormData(form) {
-            var formData = form.serializeArray();
-            var data = {};
-            $(formData).each(function(index, obj) {
-                if (obj.name === 'pictures') {
-                    if (!data.hasOwnProperty(obj.name)) {
-                        data[obj.name] = [];
-                    }
-                    data[obj.name].push(obj.value);
-                } else {
-                    data[obj.name] = obj.value;
-                }
-            });
-            return data;
-        }
-    });
-</script>
 
 <style>
     span.input-group-addon {

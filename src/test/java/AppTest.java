@@ -1,6 +1,7 @@
 import com.google.gson.Gson;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ResponseBody;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -19,6 +20,8 @@ import java.math.BigDecimal;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AppTest {
 
+    private static final String ITEM_ID = "ITEMTEST";
+
     @BeforeClass
     public static void setUp() {
         RestAssured.baseURI = "http://localhost:8080";
@@ -27,30 +30,38 @@ public class AppTest {
     @DataProvider
     public static Object[][] validatePostItemDataProvider() {
         return new Object[][] {
-                { new Item.ItemBuilder().itemId("ITEM0011")
+                { new Item.ItemBuilder().itemId(ITEM_ID)
                         .description("Test item")
                         .title("Nuevo test item")
                         .categoryId("Categoria")
                         .price(BigDecimal.TEN)
-                        .build(), 200 },
+                        .build(), 200, "Item creado correctamente" },
                 { new Item.ItemBuilder().itemId("ITEM0012")
                         .title("Titulo del item")
                         .description("Test item")
-                        .build(), 400 },
+                        .build(), 400, "Revise los campos obligatorios del item" },
                 { new Item.ItemBuilder().itemId("ITEM0013")
                         .description("Test item")
                         .categoryId("Categoria")
-                        .build(), 400 }
+                        .build(), 400, "Revise los campos obligatorios del item" },
+                { new Item.ItemBuilder().itemId(ITEM_ID)
+                        .description("Test item")
+                        .title("Nuevo test item")
+                        .categoryId("Categoria")
+                        .price(BigDecimal.TEN)
+                        .build(), 400, "El item que desea crear ya existe" }
         };
     }
 
     @Test
     @UseDataProvider("validatePostItemDataProvider")
-    public void testAValidatePostItem(Item itemToCreate, int expected) {
+    public void testAValidatePostItem(Item itemToCreate, int status, String msg) {
         RequestSpecification httpRequest = RestAssured.given();
         httpRequest.body(new Gson().toJson(itemToCreate, Item.class));
         Response response = httpRequest.post("/create");
-        Assert.assertEquals(expected, response.getStatusCode());
+        ResponseBody body = response.getBody();
+        Assert.assertEquals(msg, body.jsonPath().getString("message"));
+        Assert.assertEquals(status, response.getStatusCode());
     }
 
     @DataProvider
@@ -58,7 +69,7 @@ public class AppTest {
         return new Object[][] {
                 { "0", 404 },
                 { "1235123", 404 },
-                { "ITEM0011", 200 }
+                { ITEM_ID, 200 }
         };
     }
 
@@ -73,47 +84,57 @@ public class AppTest {
     @DataProvider
     public static Object[][] validateUpdateItemDataProvider() {
         return new Object[][] {
-                { "ITEM001", new Item.ItemBuilder().itemId("ITEM0001")
+                { ITEM_ID, new Item.ItemBuilder().itemId("ITEM0001")
                         .description("Test item")
                         .title("Nuevo test item")
                         .categoryId("Categoria")
                         .price(BigDecimal.TEN)
-                        .build(), 404 },
-                { "ITEM0011", new Item.ItemBuilder().itemId("ITEM0013")
+                        .build(), 400, "El id del item no puede ser modificado" },
+                { ITEM_ID, new Item.ItemBuilder().itemId(ITEM_ID)
                         .description("Test item")
                         .categoryId("Categoria")
-                        .build(), 400 },
-                { "ITEM0011", new Item.ItemBuilder().itemId("ITEM0011")
+                        .build(), 400, "Revise los campos obligatorios del item" },
+                { "ITEMINEXISTENTE", new Item.ItemBuilder().itemId("ITEMINEXISTENTE")
                         .description("Test item")
                         .title("Nuevo test item")
                         .categoryId("Categoria")
                         .price(BigDecimal.TEN)
-                        .build(), 200 }
+                        .build(), 404, "El item que quiere actualizar no existe" },
+                { ITEM_ID, new Item.ItemBuilder().itemId(ITEM_ID)
+                        .description("Test item")
+                        .title("Nuevo test item")
+                        .categoryId("Categoria")
+                        .price(BigDecimal.TEN)
+                        .build(), 200, "Item actualizado correctamente" }
         };
     }
 
     @Test
     @UseDataProvider("validateUpdateItemDataProvider")
-    public void testCValidateUpdateItem(String itemId, Item itemToUpdate, int expected) {
+    public void testCValidateUpdateItem(String itemId, Item itemToUpdate, int status, String msg) {
         RequestSpecification httpRequest = RestAssured.given();
         httpRequest.body(new Gson().toJson(itemToUpdate, Item.class));
         Response response = httpRequest.put("/update/" + itemId);
-        Assert.assertEquals(expected, response.getStatusCode());
+        ResponseBody body = response.getBody();
+        Assert.assertEquals(msg, body.jsonPath().getString("message"));
+        Assert.assertEquals(status, response.getStatusCode());
     }
 
     @DataProvider
     public static Object[][] validateDeleteItemDataProvider() {
         return new Object[][] {
-                { "0", 404 },
-                { "ITEM0011",  200 }
+                { "0", 404, "El item 0 no existe" },
+                { ITEM_ID,  200, "Item eliminado correctamente" }
         };
     }
 
     @Test
     @UseDataProvider("validateDeleteItemDataProvider")
-    public void testDValidateDeleteItem(String itemId, int expected) {
+    public void testDValidateDeleteItem(String itemId, int status, String msg) {
         RequestSpecification httpRequest = RestAssured.given();
         Response response = httpRequest.delete("/delete/" + itemId);
-        Assert.assertEquals(expected, response.getStatusCode());
+        ResponseBody body = response.getBody();
+        Assert.assertEquals(msg, body.jsonPath().getString("message"));
+        Assert.assertEquals(status, response.getStatusCode());
     }
 }

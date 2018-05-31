@@ -30,6 +30,9 @@ public class ItemService implements IItemService {
             TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
                     .addTransportAddress(new TransportAddress(InetAddress.getByName("localhost"), 9300));
 
+            GetResponse getResponse = client.prepareGet("store", "item", item.getItemId()).get();
+            if (getResponse.isExists()) throw new ItemException("El item que desea crear ya existe", StatusResponse.BAD_REQUEST);
+
             client.prepareIndex("store", "item", item.getItemId())
                     .setSource(new Gson().toJson(item), XContentType.JSON)
                     .execute()
@@ -46,6 +49,8 @@ public class ItemService implements IItemService {
     public void update(String itemId, String json) throws ItemException {
         try {
             Item item = new Gson().fromJson(json, Item.class);
+
+            if (!itemId.equals(item.getItemId())) throw new ItemException("El id del item no puede ser modificado", StatusResponse.BAD_REQUEST);
 
             if (!item.validate()) throw new ItemException("Revise los campos obligatorios del item", StatusResponse.BAD_REQUEST);
 

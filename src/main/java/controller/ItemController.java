@@ -17,6 +17,7 @@ import static spark.Spark.get;
 import static spark.Spark.port;
 import static spark.Spark.post;
 import static spark.Spark.put;
+import static spark.Spark.staticFileLocation;
 
 public class ItemController {
 
@@ -24,6 +25,7 @@ public class ItemController {
         port(8080);
         final IItemService itemService = new ItemService();
         ThymeleafTemplateEngine engine = new ThymeleafTemplateEngine();
+        staticFileLocation("/public");
 
         // Home path
         get("/store", (request, response) -> new ModelAndView(new HashMap<>(), "list") , engine);
@@ -56,7 +58,7 @@ public class ItemController {
             try {
                 itemService.update(request.params("id"), request.body());
                 response.status(StatusResponse.SUCCESS.getStatus());
-                return new Gson().toJson(new StandardResponse("Item actualizado"));
+                return new Gson().toJson(new StandardResponse("Item actualizado correctamente"));
             } catch (ItemException e) {
                 response.status(e.getStatus());
                 return new Gson().toJson(new StandardResponse(e.getMessage()));
@@ -93,10 +95,10 @@ public class ItemController {
             try {
                 itemService.delete(request.params(":id"));
                 response.status(StatusResponse.SUCCESS.getStatus());
-                return true;
+                return new Gson().toJson(new StandardResponse("Item eliminado correctamente"));
             } catch (ItemException e) {
                 response.status(e.getStatus());
-                return e.getMessage();
+                return new Gson().toJson(new StandardResponse(e.getMessage()));
             }
         });
     }
