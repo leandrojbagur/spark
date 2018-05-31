@@ -1,0 +1,98 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <div class="content">
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Item id</label>
+            <span th:if="${item} != null" id="itemId" class="col-lg-6">[[${item.itemId}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Título</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.title}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Descripción</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.description}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Categoría</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.categoryId}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Precio</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.price}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Moneda</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.currencyId}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Cantidad disponible</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.availableQuantity}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Modo de compra</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.buyingMode}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Tipo de publicación</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.listingTypeId}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Condición</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.condition}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-4">
+            <label class="col-lg-6">Video</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.videoId}]]</span>
+        </div>
+
+        <div class="col-lg-4">
+            <label class="col-lg-6">Garantía</label>
+            <span th:if="${item} != null" class="col-lg-6">[[${item.warranty}]]</span>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-10">
+            <label class="col-lg-12">Imágenes</label>
+            <div class="col-lg-4" th:if="${item} != null">
+                <div th:each="pic : ${item.pictures}">
+                    <img th:src="${pic}">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-8">
+            <button id="backBtn" class="btn btn-default">Volver</button>
+            <button id="editBtn" class="btn btn-default">Editar</button>
+        </div>
+    </div>
+</html>
+
+<script>
+    $(document).ready(function() {
+        $("#editBtn").click(function () {
+            var itemId = $("#itemId").text();
+            window.location = "/edit/" + itemId;
+        });
+
+        $("#backBtn").click(function () {
+            window.location = "/store";
+        });
+
+        $("body").on("click", ".remove", function() {
+            $(this).parents(".input-group").remove();
+        });
+    });
+</script>

@@ -1,0 +1,168 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <div class="content">
+        <form class="form-inline col-lg-8 col-lg-offset-2" id="itemForm">
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="itemId">Item id</label>
+                <input class="form-control" id="itemId" type="text" name="itemId" th:value="${item !=null} ? ${item.itemId} : ''" th:readonly="${new} == false">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="title">Título</label>
+                <input class="form-control" id="title" type="text" name="title" th:value="${item !=null} ? ${item.title} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="description">Descripción</label>
+                <input class="form-control" id="description" type="text" name="description" th:value="${item !=null} ? ${item.description} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="categoryId">Categoría</label>
+                <input class="form-control" id="categoryId" type="text" name="categoryId" th:value="${item !=null} ? ${item.categoryId} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="price">Precio</label>
+                <input class="form-control" id="price" type="number" step="0.1" name="price" th:value="${item !=null} ? ${item.price} : 10">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="currencyId">Moneda</label>
+                <input class="form-control" id="currencyId" type="text" name="currencyId" th:value="${item !=null} ? ${item.currencyId} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="availableQuantity">Cantidad disponible</label>
+                <input class="form-control" id="availableQuantity" type="number" name="availableQuantity" th:value="${item !=null} ? ${item.availableQuantity} : 1">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="buyingMode">Modo de compra</label>
+                <input class="form-control" id="buyingMode" type="text" name="buyingMode" th:value="${item !=null} ? ${item.buyingMode} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="listingTypeId">Tipo de publicación</label>
+                <input class="form-control" id="listingTypeId" type="text" name="listingTypeId" th:value="${item !=null} ? ${item.listingTypeId} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="condition">Condición</label>
+                <input class="form-control" id="condition" type="text" name="condition" th:value="${item !=null} ? ${item.condition} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="videoId">Video</label>
+                <input class="form-control" id="videoId" type="text" name="videoId" th:value="${item !=null} ? ${item.videoId} : ''">
+            </div>
+
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3" for="warranty">Garantía</label>
+                <input class="form-control" id="warranty" type="text" name="warranty" th:value="${item !=null} ? ${item.warranty} : ''">
+            </div>
+
+            <script th:inline="javascript">
+                var item = [[${item}]];
+                window.onload = function() {
+                    if (item && item.pictures) {
+                        item.pictures.forEach(function(pic, index) {
+                            if (index === 0) {
+                                $("div.after-add-more input").val(pic);
+                            } else {
+                                var html = $(".copy-fields").html();
+                                $(".after-add-more").after(html);
+                                var input = $("form input[name='pictures']")[1];
+                                $(input).val(pic);
+                            }
+                        });
+                    }
+                };
+            </script>
+
+            <div class="col-lg-12">
+                <label class="col-lg-3">Imágenes</label>
+                <div class="input-group after-add-more col-lg-12">
+                    <input type="text" class="form-control" name="pictures" placeholder="URL de la imagen">
+                    <span id="addImage" class="input-group-addon"><i class="glyphicon glyphicon-plus"></i></span>
+                </div>
+            </div>
+        </form>
+
+        <div class="copy-fields hide">
+            <div class="input-group col-lg-12">
+                <input type="text" class="form-control" name="pictures" placeholder="URL de la imagen">
+                <span class="input-group-addon remove"><i class="glyphicon glyphicon-remove"></i></span>
+            </div>
+        </div>
+
+        <div class="col-lg-offset-2 col-lg-8">
+            <button id="backBtn" class="btn btn-default">Volver</button>
+            <button th:id="${item} == null ? saveBtn : editBtn" class="btn btn-default">Guardar</button>
+        </div>
+    </div>
+</html>
+
+<script>
+    $(document).ready(function() {
+        $("#saveBtn").click(function () {
+            var data = parseFormData($("#itemForm"));
+            $.post("/create", JSON.stringify(data), function(response) {
+                window.location = "/store";
+            });
+
+        });
+
+        $("#editBtn").click(function () {
+            var itemId = $("#itemId").val();
+            var data = parseFormData($("#itemForm"));
+            $.ajax({
+                url: "/update/" + itemId,
+                method: "PUT",
+                data: JSON.stringify(data),
+                success: function() {
+                    window.location = "/store";
+                }
+            });
+        });
+
+        $("#backBtn").click(function () {
+            window.location = "/store";
+        });
+
+        $("#addImage").click(function() {
+            var html = $(".copy-fields").html();
+            debugger;
+            $("#itemForm").append(html);
+        });
+
+        $("body").on("click", ".remove", function() {
+            $(this).parents(".input-group").remove();
+        });
+
+        function parseFormData(form) {
+            var formData = form.serializeArray();
+            var data = {};
+            $(formData).each(function(index, obj) {
+                if (obj.name === 'pictures') {
+                    if (!data.hasOwnProperty(obj.name)) {
+                        data[obj.name] = [];
+                    }
+                    data[obj.name].push(obj.value);
+                } else {
+                    data[obj.name] = obj.value;
+                }
+            });
+            return data;
+        }
+    });
+</script>
+
+<style>
+    span.input-group-addon {
+        cursor: pointer;
+    }
+</style>

@@ -1,0 +1,89 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"/>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+<div class="container">
+    <table id="itemTable" class="display">
+        <thead>
+            <tr>
+                <th>Item id</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
+    <button id="createBtn" class="btn btn-default">Crear</button>
+</div>
+
+<script>
+    $(document).ready(function() {
+        var table = $("#itemTable").DataTable({
+            ajax: {
+                url: "/items",
+                dataSrc: "",
+                method: "GET"
+            },
+            columns: [
+                { data: "itemId",
+                    render: function(data, type) {
+                        if(type === 'display') {
+                            data = '<a href="/item/' + data + '">' + data + '</a>';
+                        }
+
+                        return data;
+                    }
+                },
+                { data: "title" },
+                { data: "description" },
+                { data: "categoryId" },
+                {
+                    data: null,
+                    render: function () {
+                        return '<button name="deleteBtn"><span class="glyphicon glyphicon-trash"></span></button>';
+                    },
+                    sortable: false
+                }],
+            language: {
+                "emptyTable": "No hay items",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ items",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 items",
+                "thousands":      ".",
+                "lengthMenu":     "Mostrar _MENU_ items",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encuentran items",
+                "paginate": {
+                    "first":      "Primera",
+                    "last":       "Última",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                }
+            },
+            drawCallback: function () {
+                $("button[name='deleteBtn']").click(function () {
+                    var itemId = $(this).closest('tr').find('td:first-child a').text();
+                    $.ajax({
+                        url: "/delete/" + itemId,
+                        method: "DELETE",
+                        success: function(response) {
+                            setTimeout(function() {
+                                table.ajax.reload();
+                            }, 1000);
+                        }
+                    })
+                });
+            }
+        });
+
+        $("#createBtn").click(function () {
+            window.location = "/create";
+        });
+    });
+</script>
