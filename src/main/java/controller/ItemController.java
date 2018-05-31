@@ -2,6 +2,14 @@ package controller;
 
 import com.google.gson.Gson;
 import exception.ItemException;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import service.IItemService;
 import service.ItemService;
 import spark.ModelAndView;
@@ -9,6 +17,9 @@ import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import response.StandardResponse;
 import response.StatusResponse;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,11 +32,15 @@ import static spark.Spark.staticFileLocation;
 
 public class ItemController {
 
-    public static void main(String[] args) {
+    private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
+
+    public static void main(String[] args) throws UnknownHostException {
+        logger.info("Inicializando aplicacion");
         port(8080);
         final IItemService itemService = new ItemService();
         ThymeleafTemplateEngine engine = new ThymeleafTemplateEngine();
         staticFileLocation("/public");
+        createIndex();
 
         // Home path
         get("/store", (request, response) -> new ModelAndView(new HashMap<>(), "list") , engine);
@@ -43,6 +58,7 @@ public class ItemController {
 
         // Create a new item
         post("/create", (request, response) -> {
+            logger.info("Creando nuevo item");
             try {
                 itemService.save(request.body());
                 response.status(StatusResponse.SUCCESS.getStatus());
@@ -55,8 +71,10 @@ public class ItemController {
 
         // Update a specific item
         put("/update/:id", (request, response) -> {
+            String itemId = request.params("id");
+            logger.info("Actualizando item " + itemId);
             try {
-                itemService.update(request.params("id"), request.body());
+                itemService.update(itemId, request.body());
                 response.status(StatusResponse.SUCCESS.getStatus());
                 return new Gson().toJson(new StandardResponse("Item actualizado correctamente"));
             } catch (ItemException e) {
@@ -92,8 +110,10 @@ public class ItemController {
 
         // Delete a specific item
         delete("/delete/:id", (request, response) -> {
+            String itemId = request.params(":id");
+            logger.info("Eliminando item " + itemId);
             try {
-                itemService.delete(request.params(":id"));
+                itemService.delete(itemId);
                 response.status(StatusResponse.SUCCESS.getStatus());
                 return new Gson().toJson(new StandardResponse("Item eliminado correctamente"));
             } catch (ItemException e) {
@@ -101,5 +121,17 @@ public class ItemController {
                 return new Gson().toJson(new StandardResponse(e.getMessage()));
             }
         });
+    }
+
+    private static void createIndex() throws UnknownHostException {
+        TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
+                .addTransportAddress(new TransportAddress(InetAddress.getByName("localhost"), 9300));
+
+        String[] indices = client.admin().indices().getIndex(new GetIndexRequest()).actionGet().getIndices();
+
+        if (!Arrays.asList(indices).contains("store")) {
+            logger.info("Inicializando indice de ElasticSearch 'store'");
+            client.admin().indices().create(new CreateIndexRequest("store")).actionGet();
+        }
     }
 }
