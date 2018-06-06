@@ -24,7 +24,7 @@ public class AppTest {
 
     @BeforeClass
     public static void setUp() {
-        RestAssured.baseURI = "http://localhost:8080";
+        RestAssured.baseURI = "http://localhost:1200";
     }
 
     @DataProvider
